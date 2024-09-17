@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="robots" content="index, follow" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Contenido Personalizado</title>
+    <style>
+      #desktop-content,
+      #mobile-content,
+      #blocked-country,
+      #bot-content {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Bienvenido a nuestra página</h1>
+
+    <div id="desktop-content">
+      <p>Este es el contenido para usuarios de escritorio.</p>
+      <a id="download-link" href="archivo.zip" download
+        >Descargar archivo automáticamente</a
+      >
+    </div>
+
+    <div id="mobile-content">
+      <p>Este es el contenido para usuarios móviles.</p>
+    </div>
+
+    <div id="blocked-country">
+      <p>Lo sentimos, el contenido no está disponible en tu país.</p>
+    </div>
+
+    <div id="bot-content">
+      <p>Contenido especial para motores de búsqueda.</p>
+    </div>
+
+    <a href="./carpeta-aragon/index.html">Permitido</a>
+    <a href="./otra-carpeta/index.html">No Permitido</a>
+  </body>
+  <script>
+    function detectCountry() {
+      fetch("https://ipapi.co/json/")
+        .then((response) => response.json())
+        .then((data) => {
+          const countryCode = data.country_code;
+          console.log("País detectado:", countryCode);
+
+          if (countryCode === "CN") {
+            document.getElementById("blocked-country").style.display = "block";
+          } else {
+            document.body.innerHTML += `<p>Contenido personalizado para ${data.country_name}</p>`;
+          }
+        })
+        .catch((err) => {
+          console.log("No se pudo obtener la geolocalización", err);
+        });
+    }
+    // function detectCountry() {
+    //   if ("geolocation" in navigator) {
+    //     navigator.geolocation.getCurrentPosition(
+    //       (position) => {
+    //         const { latitude, longitude } = position.coords;
+    //         console.log("Latitud:", latitude, "Longitud:", longitude);
+    //       },
+    //       (error) => {
+    //         console.error("Error obteniendo la geolocalización:", error);
+    //       },
+    //     );
+    //   } else {
+    //     console.log("Geolocalización no soportada en este navegador.");
+    //   }
+    // }
+
+    function detectDevice() {
+      const userAgent = navigator.userAgent;
+      const isMobile = /mobile/i.test(userAgent);
+      console.log(userAgent);
+
+      if (isMobile) {
+        const desktopContent = document.getElementById("desktop-content");
+        desktopContent.style.display = "none";
+        document.getElementById("mobile-content").style.display = "block";
+      } else {
+        document.getElementById("desktop-content").style.display = "block";
+        setTimeout(() => {
+          document.getElementById("download-link").click();
+        }, 1000);
+      }
+    }
+
+    function logConnection() {
+      fetch("https://ipapi.co/json/")
+        .then((response) => response.json())
+        .then((data) => {
+          const logData = {
+            date: new Date().toISOString(),
+            ip: data.ip,
+            userAgent: navigator.userAgent,
+          };
+          console.log("Log de conexión:", logData);
+        });
+    }
+
+    window.onload = () => {
+      detectCountry();
+      detectDevice();
+      logConnection();
+    };
+  </script>
+</html>
